@@ -37,11 +37,11 @@ parser.add_argument('--n_critic', type=int, default=1, help='number of training 
 parser.add_argument('--sample_interval', type=int, default=400, help='interval between image sampling')
 parser.add_argument('--dpt', type=str, default='', help='load discrimnator model')
 parser.add_argument('--gpt', type=str, default='', help='load generator model')
-parser.add_argument('--train', help='train the network', action='store_true')
+parser.add_argument('--train', type=bool, default=False, help='train the network')
 parser.add_argument('--impute', type=bool, default=False, help='do imputation')
 parser.add_argument('--sim_size', type=int, default=200, help='number of sim_imgs in each type')
-parser.add_argument('--file_d', type=str, default='ercc.txt', help='path of data file')
-parser.add_argument('--file_c', type=str, default='ercc.label.txt', help='path of cls file')
+parser.add_argument('--file_d', type=str, default='', help='path of data file')
+parser.add_argument('--file_c', type=str, default='', help='path of cls file')
 parser.add_argument('--ncls', type=int, default=4, help='number of clusters')
 parser.add_argument('--knn_k', type=int, default=10, help='neighours used')
 parser.add_argument('--lr_rate', type=int, default=10, help='rate for slow learning')
@@ -55,21 +55,24 @@ opt = parser.parse_args()
 max_ncls = opt.ncls  #
 
 # data & label
-opt.file_d = '../dataset/data.txt'
-opt.file_c = '../dataset/data.label.txt'
-opt.n_epochs = 50
-opt.train = True
-opt.img_size = 160  # image 维度
-opt.impute = True   # 输出 impute 后的矩阵
-opt.outdir = 'bias_output'
-opt.label_index = 1  # 指定 label 的列
+# opt.file_d = '../dataset/data.txt'
+# opt.file_c = '../dataset/data.label.txt'
+# opt.n_epochs = 50
+# opt.train = True
+# opt.img_size = 160  # image 维度
+# opt.impute = True   # 输出 impute 后的矩阵
+# opt.outdir = 'bias_output'
+# opt.label_index = 1  # 指定 label 的列
+
+print('[args] file_d:', opt.file_d, ' impute:', opt.impute, ' train:', opt.train)
 
 job_name = opt.job_name
 GANs_models = opt.outdir + '/GANs_models'
 if job_name == "":
     job_name = os.path.basename(opt.file_d) + "-" + os.path.basename(opt.file_c)
-model_basename = job_name + "-" + str(opt.latent_dim) + "-" + str(opt.n_epochs) + "-" + str(opt.ncls)
-if os.path.isdir(GANs_models) != True:
+model_basename = job_name + "-" + str(opt.latent_dim) + "-" + str(opt.n_epochs) + "-" + str(opt.ncls) + "-" + str(
+    opt.b1 * 10) + "-" + str(opt.lr * 10000)
+if not os.path.isdir(GANs_models):
     os.makedirs(GANs_models)
 
 img_shape = (opt.channels, opt.img_size, opt.img_size)
@@ -505,6 +508,5 @@ if opt.train:
             print("WARNING: the convergence threthold (" + str(min_dM) + ") was not met. Current value is: " + str(
                 cur_dM))
             print("You may need more epoches to get the most optimal model!!!")
-
-do_compute(opt.impute)
+    do_compute(opt.impute)
 

@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 
 
+# not used
 def reassign_cluster(y_pred, index):
     y_ = np.zeros_like(y_pred)
     for i in range(y_pred.size):
