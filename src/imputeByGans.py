@@ -43,13 +43,15 @@ parser.add_argument('--sim_size', type=int, default=200, help='number of sim_img
 parser.add_argument('--file_d', type=str, default='', help='path of data file')
 parser.add_argument('--file_c', type=str, default='', help='path of cls file')
 parser.add_argument('--ncls', type=int, default=4, help='number of clusters')
-parser.add_argument('--knn_k', type=int, default=10, help='neighours used')
+parser.add_argument('--knn_k', type=int, default=10, help='neighbours used')
 parser.add_argument('--lr_rate', type=int, default=10, help='rate for slow learning')
 parser.add_argument('--threthold', type=float, default=0.01, help='the convergence threthold')
 parser.add_argument('--job_name', type=str, default="",
                     help='the user-defined job name, which will be used to name the output files.')
 parser.add_argument('--outdir', type=str, default=".", help='the directory for output.')
 parser.add_argument('--label_index', type=int, default=0, help='for label column indexing')
+parser.add_argument('--skip_label_first', type=bool, default=False, help='skip label file s first row')
+parser.add_argument('--data_from_csv', type=bool, default=False, help='if the data read from csv file')
 
 opt = parser.parse_args()
 max_ncls = opt.ncls  #
@@ -92,12 +94,20 @@ class MyDataset(Dataset):
                 on a sample.
         """
         # data list
-        self.data = pd.read_table(d_file, header=0, index_col=0)
-        d = pd.read_table(cls_file, header=None, index_col=False)
+        if opt.data_from_csv:
+            self.data = pd.read_csv(d_file, header=0, index_col=0)
+        else:
+            self.data = pd.read_table(d_file, header=0, index_col=0)
+        if opt.skip_label_first:
+            d = pd.read_table(cls_file, header=0, index_col=False)
+        else:
+            d = pd.read_table(cls_file, header=None, index_col=False)
         self.data_cls = pd.Categorical(d.iloc[:, opt.label_index]).codes
         self.transform = transform
         self.fig_h = opt.img_size
-        print('[init] data len:', len(self.data), ' label len:', len(self.data_cls))
+        # print('[init] data len:', len(self.data), ' label len:', len(self.data_cls))
+        # print(self.data_cls, ' len:', len(self.data_cls))
+        # print(self.data)
 
     def __len__(self):
         return len(self.data_cls)
@@ -349,7 +359,7 @@ def do_compute(impute_f):
     rels = [my_knn_type(data_imp_org[:, idx], sim_out_org[int(mydataset[idx]['label']) - 1], knn_k=opt.knn_k) for idx in
             range(len(mydataset))]
     print('Result len:', len(rels), ' column:', len(rels[0]))
-    pd.DataFrame(rels).to_csv(opt.outdir + '/scIGANs-' + job_name + '.csv')  # imped data
+    pd.DataFrame(rels).to_csv(opt.outdir + '/scIGANs-' + model_basename + '.csv')  # imped data
 
 
 # Initialize generator and discriminator
@@ -377,9 +387,11 @@ transformed_dataset = MyDataset(d_file=opt.file_d,
                                 ]))
 # print('[data] len:', len(transformed_dataset.data), ' data:', transformed_dataset.data)
 # print('[label] len:', len(transformed_dataset.data_cls), ' data:', transformed_dataset.data_cls)
+# dataloader = DataLoader(transformed_dataset, batch_size=opt.batch_size,
+#                         shuffle=True, num_workers=0, drop_last=True)
 
 dataloader = DataLoader(transformed_dataset, batch_size=opt.batch_size,
-                        shuffle=True, num_workers=0, drop_last=True)
+                        shuffle=True, num_workers=0, drop_last=False)
 
 # print('[data loader] len:', len(dataloader))
 

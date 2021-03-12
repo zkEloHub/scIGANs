@@ -3,3 +3,6 @@ scIGANs*
 *.empty
 *-d.pt
 *-g.pt
+dataset/*
+nohup.out
+src/*output/*

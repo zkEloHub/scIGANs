@@ -1,18 +1,21 @@
 #! /bin/sh
 
-data_dir="../dataset/data.txt"
-label_dir="../dataset/data.label.txt"
-img_size=160
-label_index=1
-output_dir="bias_output"
+data_dir="../dataset/human_brain/brainTags.csv"
+label_dir="../dataset/human_brain/src_label.txt"
+img_size=148
+label_index=9
+skip_label_first="1"
+data_from_csv="1"
+output_dir="human_brain_output"
 f_impute=""
-f_train="True"
-n_epochs=50
-batch_size=8
+f_train="1"
+n_epochs=100
+batch_size=32
 gamma=0.95
 learn_rate=0.0002
 adam_b1=0.5
 adam_b2=0.999
+n_clusters=16
 
 update_params() {
     const_params="
@@ -28,6 +31,9 @@ update_params() {
         --outdir=$output_dir \
         --b1=$adam_b1 \
         --b2=$adam_b2 \
+		--ncls=$n_clusters \
+		--skip_label_first=$skip_label_first \
+		--data_from_csv=$data_from_csv \
         --label_index=$label_index"
 }
 
@@ -43,6 +49,7 @@ execute_evaluate() {
     eval $cmd
 }
 
+
 # execute_impute
 test_learn_rate() {
    lr_array=(0.0001 0.0002 0.0003)
@@ -54,7 +61,7 @@ test_learn_rate() {
 }
 
 test_adam_b() {
-    b1_array=(0.5 0.8 0.9)
+    b1_array=(0.5 0.7 0.9)
     b2_array=(0.999)
     for b1 in ${b1_array[*]}
     do
@@ -67,4 +74,7 @@ test_adam_b() {
     done
 }
 
-test_adam_b
+# execute_impute
+
+test_learn_rate
+# test_adam_b
