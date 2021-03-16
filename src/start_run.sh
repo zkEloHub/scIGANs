@@ -9,7 +9,7 @@ data_from_csv="1"
 output_dir="human_brain_output"
 f_impute=""
 f_train="1"
-n_epochs=100
+n_epochs=1
 batch_size=32
 gamma=0.95
 learn_rate=0.0002
@@ -74,7 +74,7 @@ test_adam_b() {
     done
 }
 
-# execute_impute
+execute_impute
 
-test_learn_rate
+# test_learn_rate
 # test_adam_b

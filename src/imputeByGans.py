@@ -108,6 +108,7 @@ class MyDataset(Dataset):
         # print('[init] data len:', len(self.data), ' label len:', len(self.data_cls))
         # print(self.data_cls, ' len:', len(self.data_cls))
         # print(self.data)
+        # print(self.data_cls)
 
     def __len__(self):
         return len(self.data_cls)
@@ -323,10 +324,8 @@ def do_compute(impute_f):
         model_g = opt.gpt
     # print(model_g + " is used for imputation.")
     if cuda:
-        # discriminator.load_state_dict(torch.load(opt.dpt))
         generator.load_state_dict(torch.load(model_g))
     else:
-        # discriminator.load_state_dict(torch.load(opt.dpt, map_location=lambda storage, loc: storage))
         generator.load_state_dict(torch.load(model_g, map_location=lambda storage, loc: storage))
     ######################################################
     ### impute by type
@@ -385,8 +384,8 @@ transformed_dataset = MyDataset(d_file=opt.file_d,
                                     #                                               RandomCrop(224),
                                     ToTensor()
                                 ]))
-# print('[data] len:', len(transformed_dataset.data), ' data:', transformed_dataset.data)
-# print('[label] len:', len(transformed_dataset.data_cls), ' data:', transformed_dataset.data_cls)
+print('[data] \n  len:', len(transformed_dataset.data), '\n  data:', transformed_dataset.data)
+print('[label] \n  len:', len(transformed_dataset.data_cls), '\n  data:', transformed_dataset.data_cls)
 # dataloader = DataLoader(transformed_dataset, batch_size=opt.batch_size,
 #                         shuffle=True, num_workers=0, drop_last=True)
 
